@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Drenagem Pluvial e Reúso (NBR 10844 / NBR 15527)</title>
+    <!-- Tailwind CSS para Estilização Premium -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Efeito de vidro para cards premium */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Header Principal -->
+    <header class="bg-gradient-to-r from-blue-700 via-blue-800 to-indigo-900 text-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-white text-blue-800 p-2 rounded-lg shadow-inner">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight">EAD-Pluvial</h1>
+                    <p class="text-xs text-blue-200">Verificador de Campo — NBR 10844 & NBR 15527</p>
+                </div>
+            </div>
+            
+            <!-- Abas de Navegação -->
+            <nav class="flex space-x-1 bg-blue-900/40 p-1 rounded-lg">
+                <button onclick="switchTab('calculadora')" id="btn-calculadora" class="tab-btn px-4 py-2 text-sm font-medium rounded-md transition bg-blue-600 text-white shadow-sm">
+                    Verificação e Drenagem
+                </button>
+                <button onclick="switchTab('reuso')" id="btn-reuso" class="tab-btn px-4 py-2 text-sm font-medium rounded-md transition text-blue-200 hover:text-white">
+                    Reúso e Descarte
+                </button>
+                <button onclick="switchTab('guia')" id="btn-guia" class="tab-btn px-4 py-2 text-sm font-medium rounded-md transition text-blue-200 hover:text-white">
+                    Guia de Obra
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Conteúdo Centralizado -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-6 sm:px-6 lg:px-8">
+        
+        <!-- ================= ABA 1: CALCULADORA DE DRENAGEM ================= -->
+        <section id="tab-calculadora" class="space-y-6">
+            <!-- Grid de Duas Colunas: Entradas de Dados e Resultados -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                <!-- Coluna de Inputs (Esquerda) -->
+                <div class="lg:col-span-5 space-y-6">
+                    <div class="glass-card rounded-2xl p-6 shadow-sm">
+                        <div class="flex items-center gap-2 mb-4 pb-2 border-b border-slate-100">
+                            <span class="flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-xs font-bold">1</span>
+                            <h2 class="font-semibold text-slate-800 text-lg">Parâmetros da Cobertura</h2>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <!-- Tipo de Telhado -->
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Configuração do Telhado</label>
+                                <select id="input-tipo-telhado" onchange="calcularTudo()" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition">
+                                    <option value="1">1 Água (Toda a chuva cai para um lado)</option>
+                                    <option value="2" selected>2 Águas Simétricas (Cálculo por Vertente/Calha)</option>
+                                </select>
+                            </div>
+
+                            <!-- Linha A e H -->
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">A — Largura da Água (m)</label>
+                                    <input type="number" id="input-a" value="5" min="0.1" step="0.1" oninput="calcularTudo()" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition font-medium">
+                                    <span class="text-[10px] text-slate-400">Projeção horizontal</span>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">H — Altura Cumeeira (m)</label>
+                                    <input type="number" id="input-h" value="2" min="0" step="0.1" oninput="calcularTudo()" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition font-medium">
+                                    <span class="text-[10px] text-slate-400">Altura da calha ao topo</span>
+                                </div>
+                            </div>
+
+                            <!-- Linha B -->
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">B — Comprimento da Calha (m)</label>
+                                <input type="number" id="input-b" value="25" min="0.1" step="0.1" oninput="calcularTudo()" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition font-medium">
+                                <span class="text-[10px] text-slate-400">Extensão linear do beiral</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card de Hidrologia -->
+                    <div class="glass-card rounded-2xl p-6 shadow-sm">
+                        <div class="flex items-center gap-2 mb-4 pb-2 border-b border-slate-100">
+                            <span class="flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-xs font-bold">2</span>
+                            <h2 class="font-semibold text-slate-800 text-lg">Intensidade & Risco</h2>
+                        </div>
+
+                        <div class="space-y-4">
+                            <!-- Guia de Período de Retorno -->
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Risco / Tempo de Retorno (T)</label>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <button onclick="setRetorno(5, 110)" id="btn-t-5" class="border border-blue-200 bg-blue-50/50 hover:bg-blue-50 text-blue-700 px-3 py-2 rounded-lg text-xs font-medium transition text-left">
+                                        <p class="font-bold">T = 5 anos</p>
+                                        <p class="text-[9px] text-slate-500 font-normal">Residencial / Geral</p>
+                                    </button>
+                                    <button onclick="setRetorno(25, 165)" id="btn-t-25" class="border border-slate-200 hover:bg-slate-50 text-slate-700 px-3 py-2 rounded-lg text-xs font-medium transition text-left">
+                                        <p class="font-bold">T = 25 anos</p>
+                                        <p class="text-[9px] text-slate-500 font-normal">Industrial / Crítico</p>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Intensidade Pluviométrica -->
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">I — Intensidade Pluviométrica (mm/h)</label>
+                                <input type="number" id="input-i" value="165" min="1" oninput="calcularTudo()" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition font-bold text-blue-800">
+                                <span class="text-[10px] text-slate-400">Obtida pelas curvas IDF locais</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card de Condutores -->
+                    <div class="glass-card rounded-2xl p-6 shadow-sm">
+                        <div class="flex items-center gap-2 mb-4 pb-2 border-b border-slate-100">
+                            <span class="flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-xs font-bold">3</span>
+                            <h2 class="font-semibold text-slate-800 text-lg">Condutores Verticais</h2>
+                        </div>
+
+                        <div class="space-y-4">
+                            <!-- Quantidade de Condutores -->
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">N — Quantidade de Condutores</label>
+                                <div class="flex items-center gap-2">
+                                    <button type="button" onclick="alterarN(-1)" class="bg-slate-100 hover:bg-slate-200 text-slate-700 w-10 h-10 rounded-lg font-bold text-lg transition flex items-center justify-center">-</button>
+                                    <input type="number" id="input-n" value="2" min="1" readonly class="text-center bg-slate-50 border border-slate-200 rounded-lg w-full h-10 font-bold text-lg text-slate-800">
+                                    <button type="button" onclick="alterarN(1)" class="bg-slate-100 hover:bg-slate-200 text-slate-700 w-10 h-10 rounded-lg font-bold text-lg transition flex items-center justify-center">+</button>
+                                </div>
+                                <span class="text-[10px] text-slate-400">Distribuídos uniformemente na calha</span>
+                            </div>
+
+                            <!-- Seleção Comercial de Diâmetro -->
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Diâmetro Nominal do Tubo (DN)</label>
+                                <div class="grid grid-cols-3 gap-2">
+                                    <button onclick="setDN('75', 160)" id="btn-dn-75" class="border border-slate-200 hover:bg-slate-50 p-2 rounded-lg text-center transition">
+                                        <p class="font-bold text-sm">DN 75</p>
+                                        <p class="text-[9px] text-slate-500">Até 160 L/min</p>
+                                    </button>
+                                    <button onclick="setDN('100', 360)" id="btn-dn-100" class="border border-blue-600 bg-blue-50 text-blue-800 p-2 rounded-lg text-center transition">
+                                        <p class="font-bold text-sm">DN 100</p>
+                                        <p class="text-[9px] text-blue-600">Até 360 L/min</p>
+                                    </button>
+                                    <button onclick="setDN('personalizado', 160)" id="btn-dn-custom" class="border border-slate-200 hover:bg-slate-50 p-2 rounded-lg text-center transition">
+                                        <p class="font-bold text-sm">Outro</p>
+                                        <p class="text-[9px] text-slate-500">Personalizar</p>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Capacidade Manual se for customizado -->
+                            <div id="wrapper-capacidade-custom" class="hidden">
+                                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Capacidade de Escoamento Limite (L/min)</label>
+                                <input type="number" id="input-qmax" value="160" min="1" oninput="calcularTudo()" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition font-medium">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Coluna de Resultados (Direita) -->
+                <div class="lg:col-span-7 space-y-6">
+                    
+                    <!-- Diagrama Esquemático do Telhado -->
+                    <div class="glass-card rounded-2xl p-6 shadow-sm">
+                        <h3 class="font-bold text-slate-700 text-sm mb-3 flex items-center gap-1.5 uppercase tracking-wider">
+                            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            Esquema do Telhado & Cotas
+                        </h3>
+                        
+                        <!-- Desenho SVG Dinâmico do Telhado -->
+                        <div class="bg-slate-100 rounded-xl p-4 flex items-center justify-center relative overflow-hidden" style="height: 180px;">
+                            <svg id="roof-svg" viewBox="0 0 400 160" class="w-full h-full max-w-sm drop-shadow-sm transition-all duration-300">
+                                <!-- Linha do Solo / Referência -->
+                                <line x1="20" y1="140" x2="380" y2="140" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" />
+                                
+                                <!-- Telhado Lado Esquerdo -->
+                                <line id="roof-left" x1="200" y1="50" x2="70" y2="110" stroke="#1e3a8a" stroke-width="6" stroke-linecap="round" />
+                                <!-- Telhado Lado Direito (Água ativa no cálculo) -->
+                                <line id="roof-right" x1="200" y1="50" x2="330" y2="110" stroke="#2563eb" stroke-width="8" stroke-linecap="round" />
+                                
+                                <!-- Parede Vertical de Suporte -->
+                                <line x1="200" y1="50" x2="200" y2="140" stroke="#64748b" stroke-width="2" stroke-dasharray="4,4" />
+                                
+                                <!-- Calha Lado Direito -->
+                                <circle cx="330" cy="110" r="7" fill="#1d4ed8" />
+                                <!-- Condutor de descida -->
+                                <path d="M330,110 L330,140" stroke="#1d4ed8" stroke-width="4" stroke-linecap="round" stroke-dasharray="2,2" />
+
+                                <!-- Indicações de Cotas -->
+                                <!-- Cota h (Altura Cumeeira) -->
+                                <line x1="170" y1="50" x2="170" y2="110" stroke="#e2e8f0" stroke-width="2" />
+                                <text x="155" y="85" fill="#475569" font-size="11" font-weight="600" text-anchor="middle">h</text>
+                                
+                                <!-- Cota a (Largura da água) -->
+                                <line x1="200" y1="125" x2="330" y2="125" stroke="#475569" stroke-width="1.5" />
+                                <text x="265" y="120" fill="#475569" font-size="11" font-weight="600" text-anchor="middle">a</text>
+                                
+                                <!-- Símbolo do Vento / Chuva Inclinada -->
+                                <g id="wind-rain" transform="translate(40,20)">
+                                    <path d="M0,10 L20,30" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+                                    <path d="M10,5 L30,25" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+                                    <path d="M-10,15 L10,35" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+                                    <text x="35" y="15" fill="#0284c7" font-size="9" font-weight="bold">Chuva Inclinada (Vento)</text>
+                                </g>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- CARD DE RESULTADOS DE FLUXO -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Card: Área Corrigida -->
+                        <div class="glass-card rounded-2xl p-5 shadow-sm flex flex-col justify-between">
+                            <div>
+                                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Área Corrigida (Ac)</p>
+                                <p class="text-xs text-slate-400 mt-0.5">Equação: (a + h / 2) * b</p>
+                            </div>
+                            <div class="mt-4 flex items-baseline gap-1">
+                                <span id="res-area-corrigida" class="text-3xl font-bold text-slate-800">230.00</span>
+                                <span class="text-slate-500 text-sm font-medium">m²</span>
+                            </div>
+                        </div>
+
+                        <!-- Card: Vazão Total Real -->
+                        <div class="glass-card rounded-2xl p-5 shadow-sm flex flex-col justify-between">
+                            <div>
+                                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Vazão Total Coletada (Q)</p>
+                                <p class="text-xs text-slate-400 mt-0.5">Equação: (I * Ac) / 60</p>
+                            </div>
+                            <div class="mt-4 flex items-baseline gap-1">
+                                <span id="res-vazao-total" class="text-3xl font-bold text-blue-700">632.50</span>
+                                <span class="text-blue-500 text-sm font-medium">L/min</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RESULTADO FINAL DA VERIFICAÇÃO (STATUS) -->
+                    <div id="status-box" class="rounded-2xl p-6 text-white shadow-md transition-all duration-300">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <span id="status-tag" class="inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-2"></span>
+                                <h3 id="status-title" class="text-2xl font-black tracking-tight"></h3>
+                                <p id="status-desc" class="text-sm mt-1 opacity-90"></p>
+                            </div>
+                            <div id="status-icon" class="w-16 h-16 rounded-full flex items-center justify-center bg-white/20">
+                                <!-- Ícone dinâmico inserido via JS -->
+                            </div>
+                        </div>
+
+                        <!-- Detalhamento Comparativo de Carga -->
+                        <div class="mt-6 pt-4 border-t border-white/20 grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <p class="opacity-75">Demanda por Condutor:</p>
+                                <p class="text-lg font-bold"><span id="res-demanda-cond">316.25</span> L/min</p>
+                            </div>
+                            <div>
+                                <p class="opacity-75">Capacidade de Projeto:</p>
+                                <p class="text-lg font-bold"><span id="res-capacidade-cond">360.00</span> L/min</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= ABA 2: REÚSO E FIRST FLUSH ================= -->
+        <section id="tab-reuso" class="hidden space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Inputs de Reúso (Esquerda) -->
+                <div class="lg:col-span-5 space-y-6">
+                    <div class="glass-card rounded-2xl p-6 shadow-sm">
+                        <div class="flex items-center gap-2 mb-4 pb-2 border-b border-slate-100">
+                            <span class="flex items-center justify-center w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold">1</span>
+                            <h2 class="font-semibold text-slate-800 text-lg">Área do Telhado para Reúso</h2>
+                        </div>
+
+                        <div class="space-y-4">
+                            <!-- Toggle de Sincronização -->
+                            <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                <div>
+                                    <p class="text-xs font-bold text-slate-700">Importar do Dimensionamento</p>
+                                    <p class="text-[10px] text-slate-400">Usa os dados de área da Aba anterior</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="sync-area" checked onchange="toggleSyncArea()" class="sr-only peer">
+                                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                                </label>
+                            </div>
+
+                            <!-- Área do Telhado Manual -->
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Área Total Captada do Telhado (m²)</label>
+                                <input type="number" id="input-area-total-reuso" disabled oninput="calcularReuso()" class="w-full bg-slate-100 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-500 font-bold">
+                                <span class="text-[10px] text-slate-400">Área total de captação que gera escoamento para o filtro</span>
+                            </div>
+
+                            <!-- Lâmina de Descarte NBR 15527 -->
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Lâmina de Descarte de Lavagem (mm)</label>
+                                <select id="input-lamina-first-flush" onchange="calcularReuso()" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none transition">
+                                    <option value="1">1 mm (Recomendado para telhados muito limpos)</option>
+                                    <option value="2" selected>2 mm (Padrão NBR 15527 - Segurança)</option>
+                                </select>
+                                <span class="text-[10px] text-slate-400">Garante a lavagem de detritos e fezes de pássaros</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resultados de Reúso (Direita) -->
+                <div class="lg:col-span-7 space-y-6">
+                    <!-- CARD PRINCIPAL: VOLUME DE FIRST FLUSH -->
+                    <div class="bg-gradient-to-br from-indigo-700 to-violet-800 text-white rounded-3xl p-6 shadow-md relative overflow-hidden">
+                        <div class="absolute -right-10 -bottom-10 opacity-10">
+                            <svg class="w-48 h-48" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                        </div>
+                        
+                        <span class="bg-white/20 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">Volume de Descarte Inicial</span>
+                        <h3 class="text-xl font-bold mt-2">Volume do Desvio de Lavagem (First Flush)</h3>
+                        <p class="text-xs text-indigo-200 mt-1">Este volume deve ser descartado automaticamente antes do envio à cisterna.</p>
+
+                        <div class="mt-6 flex items-baseline gap-2">
+                            <span id="res-volume-first-flush" class="text-5xl font-black">920</span>
+                            <span class="text-2xl font-bold text-indigo-200">Litros</span>
+                        </div>
+
+                        <div class="mt-4 text-xs bg-black/10 rounded-xl p-3 text-indigo-100">
+                            <strong>Fórmula de Segurança:</strong> Volume (L) = Área Total (m²) * Lâmina de Descarte (mm)
+                        </div>
+                    </div>
+
+                    <!-- Soluções de Dimensionamento de Campo -->
+                    <div class="glass-card rounded-2xl p-6 shadow-sm space-y-4">
+                        <h3 class="font-bold text-slate-700 text-sm uppercase tracking-wider flex items-center gap-1.5">
+                            <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                            Recomendações Práticas de Construção
+                        </h3>
+
+                        <div class="space-y-3 text-sm text-slate-600">
+                            <!-- Recomendação Tubulação de Desvio -->
+                            <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 flex gap-3 items-start">
+                                <div class="bg-indigo-100 text-indigo-700 font-bold rounded-lg p-1 text-xs shrink-0 mt-0.5">Opção A</div>
+                                <div>
+                                    <h4 class="font-bold text-slate-800">Coluna Vertical de Lavagem (Tubo de queda cego)</h4>
+                                    <p class="text-xs text-slate-500 mt-1">Para acumular o descarte em um tubo de queda de DN 150 mm, você precisará de:</p>
+                                    <p class="text-xs font-bold text-indigo-700 mt-1"><span id="res-comprimento-tubo">52.3</span> metros de tubulação vertical cega de DN 150.</p>
+                                    <span class="text-[9px] text-slate-400">(Considera o volume útil de 17.6 Litros por metro linear de tubo DN 150)</span>
+                                </div>
+                            </div>
+
+                            <!-- Recomendação Reservatório Separado -->
+                            <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 flex gap-3 items-start">
+                                <div class="bg-indigo-100 text-indigo-700 font-bold rounded-lg p-1 text-xs shrink-0 mt-0.5">Opção B</div>
+                                <div>
+                                    <h4 class="font-bold text-slate-800">Câmara de Desvio Estanque (Reservatório Separado)</h4>
+                                    <p class="text-xs text-slate-500 mt-1">Instalação de uma caixa ou bombona plástica estanque de capacidade mínima de <strong id="res-capacidade-bombona">1000 Litros</strong> posicionada antes da entrada da cisterna.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= ABA 3: GUIA DE OBRA ================= -->
+        <section id="tab-guia" class="hidden space-y-6">
+            <div class="glass-card rounded-2xl p-6 shadow-sm space-y-6">
+                <div class="border-b border-slate-100 pb-4">
+                    <h2 class="text-xl font-bold text-slate-800">Guia Executivo "Pé na Obra" — Drenagem Pluvial</h2>
+                    <p class="text-sm text-slate-500">Diretrizes cruciais para conferência e execução em campo com base na NBR 10844.</p>
+                </div>
+
+                <!-- Grid de Dicas Práticas -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-slate-600">
+                    <!-- Declividade das Calhas -->
+                    <div class="space-y-2 p-4 bg-blue-50/50 rounded-2xl border border-blue-100">
+                        <div class="flex items-center gap-2 text-blue-800 font-bold">
+                            <span class="w-2 h-2 rounded-full bg-blue-600"></span>
+                            <h4>Declividade Mínima das Calhas</h4>
+                        </div>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            As calhas de beiral devem possuir uma declividade longitudinal mínima de <strong>0,5% (0,5 cm por metro)</strong> na direção das caixas de areia ou condutores. Caimentos inadequados criam poças que degradam a calha e servem de criadouros de mosquitos.
+                        </p>
+                    </div>
+
+                    <!-- Caixas de Areia -->
+                    <div class="space-y-2 p-4 bg-blue-50/50 rounded-2xl border border-blue-100">
+                        <div class="flex items-center gap-2 text-blue-800 font-bold">
+                            <span class="w-2 h-2 rounded-full bg-blue-600"></span>
+                            <h4>Caixas de Areia / Inspeção Pluvial</h4>
+                        </div>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            É proibido interligar o fluxo pluvial diretamente nos subcoletores enterrados sem a instalação de caixas de areia. Elas retêm as folhas e sujeiras finas que caem do telhado, evitando o entupimento subterrâneo.
+                        </p>
+                    </div>
+
+                    <!-- Mudanças de Direção -->
+                    <div class="space-y-2 p-4 bg-indigo-50/50 rounded-2xl border border-indigo-100">
+                        <div class="flex items-center gap-2 text-indigo-800 font-bold">
+                            <span class="w-2 h-2 rounded-full bg-indigo-600"></span>
+                            <h4>Conexões Suaves (Curvas de 45°)</h4>
+                        </div>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            Toda e qualquer mudança de direção horizontal na rede pluvial subterrânea deve usar junções ou curvas de <strong>45 graus</strong>. É terminantemente proibido o uso de tês de 90° na horizontal, para evitar obstruções e refluxos.
+                        </p>
+                    </div>
+
+                    <!-- Separação Pluvial e Esgoto -->
+                    <div class="space-y-2 p-4 bg-indigo-50/50 rounded-2xl border border-indigo-100">
+                        <div class="flex items-center gap-2 text-indigo-800 font-bold">
+                            <span class="w-2 h-2 rounded-full bg-indigo-600"></span>
+                            <h4>Independência Total de Redes</h4>
+                        </div>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            <strong>NUNCA interligue</strong> a tubulação pluvial com a rede de esgoto sanitário. Essa ligação cruzada provoca sobrecarga catastrófica no tanque séptico (gerando vazamentos de esgoto na superfície) e sobrecarrega as estações públicas de tratamento.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Quadro de Capacidades de Tubulação Pluvial -->
+                <div class="border-t border-slate-100 pt-6">
+                    <h3 class="font-bold text-slate-700 text-sm uppercase tracking-wider mb-3">Tabela de Capacidades de Escoamento em Condutores Verticais</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs text-left border border-slate-200 rounded-xl overflow-hidden">
+                            <thead class="bg-slate-100 text-slate-700 uppercase tracking-wider">
+                                <tr>
+                                    <th class="p-3 font-semibold">Diâmetro Nominal (DN)</th>
+                                    <th class="p-3 font-semibold">Capacidade de Projeto (L/min)</th>
+                                    <th class="p-3 font-semibold">Aplicação Recomendada</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200">
+                                <tr class="hover:bg-slate-50">
+                                    <td class="p-3 font-bold text-slate-800">DN 75 mm</td>
+                                    <td class="p-3 text-slate-600">Até 160 L/min</td>
+                                    <td class="p-3 text-slate-500">Varandas, garagens, pequenas residências</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50">
+                                    <td class="p-3 font-bold text-slate-800">DN 100 mm</td>
+                                    <td class="p-3 text-slate-600">Até 360 L/min</td>
+                                    <td class="p-3 text-slate-500">Casas padrão, comércios de porte médio</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50">
+                                    <td class="p-3 font-bold text-slate-800">DN 150 mm</td>
+                                    <td class="p-3 text-slate-600">Até 900 L/min</td>
+                                    <td class="p-3 text-slate-500">Galpões industriais, shoppings, grandes coberturas</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer Corporativo -->
+    <footer class="bg-slate-800 text-slate-400 py-6 text-center text-xs mt-12 border-t border-slate-700">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>EAD-Pluvial &copy; 2026. Desenvolvido para auxílio acadêmico e engenharia de campo de forma rápida e precisa.</p>
+            <p class="mt-2 text-slate-500">Sempre valide os cálculos oficiais por meio da memória descritiva assinada pelo engenheiro responsável do projeto.</p>
+        </div>
+    </footer>
+
+    <!-- LÓGICA DE PROGRAMAÇÃO INTERATIVA EM JAVASCRIPT -->
+    <script>
+        // Parâmetros de Estado da Aplicação
+        let currentDN = '100';
+        let currentCapacity = 360;
+        let isSyncingArea = true;
+
+        // Alternância de Abas
+        function switchTab(tabId) {
+            // Oculta todas as seções
+            document.getElementById('tab-calculadora').classList.add('hidden');
+            document.getElementById('tab-reuso').classList.add('hidden');
+            document.getElementById('tab-guia').classList.add('hidden');
+
+            // Remove estilos ativos de todos os botões
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.className = "tab-btn px-4 py-2 text-sm font-medium rounded-md transition text-blue-200 hover:text-white";
+            });
+
+            // Exibe a aba ativa
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+
+            // Adiciona classe ativa para o botão selecionado
+            let activeBtn = document.getElementById(`btn-${tabId}`);
+            if (activeBtn) {
+                activeBtn.className = "tab-btn px-4 py-2 text-sm font-medium rounded-md transition bg-blue-600 text-white shadow-sm";
+            }
+        }
+
+        // Configuração de Tempo de Retorno (Risco)
+        function setRetorno(t, iValue) {
+            document.getElementById('input-i').value = iValue;
+            
+            // Gerencia ativação dos botões de tempo de retorno
+            const btn5 = document.getElementById('btn-t-5');
+            const btn25 = document.getElementById('btn-t-25');
+
+            if (t === 5) {
+                btn5.className = "border border-blue-200 bg-blue-50/50 hover:bg-blue-50 text-blue-700 px-3 py-2 rounded-lg text-xs font-medium transition text-left";
+                btn25.className = "border border-slate-200 hover:bg-slate-50 text-slate-700 px-3 py-2 rounded-lg text-xs font-medium transition text-left";
+            } else {
+                btn5.className = "border border-slate-200 hover:bg-slate-50 text-slate-700 px-3 py-2 rounded-lg text-xs font-medium transition text-left";
+                btn25.className = "border border-blue-200 bg-blue-50/50 hover:bg-blue-50 text-blue-700 px-3 py-2 rounded-lg text-xs font-medium transition text-left";
+            }
+
+            calcularTudo();
+        }
+
+        // Incremento e Decremento de N (Quantidade de condutores)
+        function alterarN(val) {
+            let nInput = document.getElementById('input-n');
+            let currentVal = parseInt(nInput.value);
+            let newVal = currentVal + val;
+            if (newVal >= 1) {
+                nInput.value = newVal;
+                calcularTudo();
+            }
+        }
+
+        // Definição rápida de Diâmetro Nominal (DN)
+        function setDN(dn, capacity) {
+            currentDN = dn;
+            currentCapacity = capacity;
+
+            // Remove estilos ativos de todos os botões de DN
+            const dn75 = document.getElementById('btn-dn-75');
+            const dn100 = document.getElementById('btn-dn-100');
+            const dnCustom = document.getElementById('btn-dn-custom');
+
+            dn75.className = "border border-slate-200 hover:bg-slate-50 p-2 rounded-lg text-center transition";
+            dn100.className = "border border-slate-200 hover:bg-slate-50 p-2 rounded-lg text-center transition";
+            dnCustom.className = "border border-slate-200 hover:bg-slate-50 p-2 rounded-lg text-center transition";
+
+            if (dn === '75') {
+                dn75.className = "border border-blue-600 bg-blue-50 text-blue-800 p-2 rounded-lg text-center transition";
+                document.getElementById('wrapper-capacidade-custom').classList.add('hidden');
+            } else if (dn === '100') {
+                dn100.className = "border border-blue-600 bg-blue-50 text-blue-800 p-2 rounded-lg text-center transition";
+                document.getElementById('wrapper-capacidade-custom').classList.add('hidden');
+            } else {
+                dnCustom.className = "border border-blue-600 bg-blue-50 text-blue-800 p-2 rounded-lg text-center transition";
+                document.getElementById('wrapper-capacidade-custom').classList.remove('hidden');
+                // Puxa o valor atual do input manual para a capacidade
+                currentCapacity = parseInt(document.getElementById('input-qmax').value);
+            }
+
+            calcularTudo();
+        }
+
+        // Sincronização do Telhado para Reúso
+        function toggleSyncArea() {
+            let syncCheckbox = document.getElementById('sync-area');
+            let areaInput = document.getElementById('input-area-total-reuso');
+
+            if (syncCheckbox.checked) {
+                isSyncingArea = true;
+                areaInput.disabled = true;
+                areaInput.className = "w-full bg-slate-100 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-500 font-bold";
+            } else {
+                isSyncingArea = false;
+                areaInput.disabled = false;
+                areaInput.className = "w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 font-bold focus:ring-2 focus:ring-indigo-500 focus:outline-none transition";
+            }
+
+            calcularTudo();
+        }
+
+        // Execução principal dos Cálculos
+        function calcularTudo() {
+            // Inputs Hidráulicos
+            let a = parseFloat(document.getElementById('input-a').value) || 0;
+            let h = parseFloat(document.getElementById('input-h').value) || 0;
+            let b = parseFloat(document.getElementById('input-b').value) || 0;
+            let i = parseFloat(document.getElementById('input-i').value) || 0;
+            let n = parseInt(document.getElementById('input-n').value) || 1;
+            let tipoTelhado = parseInt(document.getElementById('input-tipo-telhado').value);
+
+            // Ajuste dinâmico do gráfico de telhado para manter proporções aproximadas
+            ajustarGraficoTelhado(a, h);
+
+            // 1. Cálculo da Área de Contribuição Corrigida (NBR 10844)
+            // Equação linear: Ac = (a + h / 2) * b
+            let areaCorrigida = (a + (h / 2)) * b;
+            document.getElementById('res-area-corrigida').innerText = areaCorrigida.toFixed(2);
+
+            // 2. Cálculo da Vazão de Projeto (Q)
+            // Equação linear: Q = (I * Ac) / 60
+            let vazaoTotal = (i * areaCorrigida) / 60;
+            document.getElementById('res-vazao-total').innerText = vazaoTotal.toFixed(2);
+
+            // 3. Demanda por condutor
+            let demandaPorCondutor = vazaoTotal / n;
+            document.getElementById('res-demanda-cond').innerText = demandaPorCondutor.toFixed(2);
+
+            // Define capacidade limite baseado no selecionado
+            let capProjeto = currentCapacity;
+            if (currentDN === 'personalizado') {
+                capProjeto = parseFloat(document.getElementById('input-qmax').value) || 0;
+            }
+            document.getElementById('res-capacidade-cond').innerText = capProjeto.toFixed(2);
+
+            // 4. Verificação de Status
+            let statusBox = document.getElementById('status-box');
+            let statusTag = document.getElementById('status-tag');
+            let statusTitle = document.getElementById('status-title');
+            let statusDesc = document.getElementById('status-desc');
+            let statusIcon = document.getElementById('status-icon');
+
+            if (demandaPorCondutor <= capProjeto) {
+                // APROVADO
+                statusBox.className = "rounded-2xl p-6 text-white shadow-md transition-all duration-300 bg-emerald-600 border border-emerald-500";
+                statusTag.className = "inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider mb-2 bg-emerald-800 text-emerald-100";
+                statusTag.innerText = "Dimensionamento Aprovado";
+                statusTitle.innerText = "SISTEMA APROVADO ✔";
+                statusDesc.innerText = `O diâmetro escolhido suporta com segurança a vazão por condutor (${demandaPorCondutor.toFixed(1)} L/min).`;
+                statusIcon.innerHTML = `<svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>`;
+            } else {
+                // REPROVADO
+                statusBox.className = "rounded-2xl p-6 text-white shadow-md transition-all duration-300 bg-rose-600 border border-rose-500";
+                statusTag.className = "inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider mb-2 bg-rose-800 text-rose-100";
+                statusTag.innerText = "Alerta de Falha";
+                statusTitle.innerText = "REPROVADO / TRANSBORDAMENTO ❌";
+                statusDesc.innerText = `A vazão (${demandaPorCondutor.toFixed(1)} L/min) excede a capacidade do condutor (${capProjeto} L/min).`;
+                statusIcon.innerHTML = `<svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>`;
+            }
+
+            // 5. Atualização da Área de Reúso (Se sincronizado)
+            let areaInputReuso = document.getElementById('input-area-total-reuso');
+            if (isSyncingArea) {
+                // Se o telhado é de 2 águas simétricas, e a pessoa calcula a captação total, a área é multiplicada por 2.
+                let areaFinal = areaCorrigida * tipoTelhado;
+                areaInputReuso.value = areaFinal.toFixed(2);
+            }
+
+            calcularReuso();
+        }
+
+        // Cálculos de Reúso & First Flush (Aba 2)
+        function calcularReuso() {
+            let areaTotal = parseFloat(document.getElementById('input-area-total-reuso').value) || 0;
+            let laminaFF = parseFloat(document.getElementById('input-lamina-first-flush').value) || 2;
+
+            // Volume de Descarte (V_descarte) = Area Total * Lamina
+            let volFirstFlush = areaTotal * laminaFF;
+            document.getElementById('res-volume-first-flush').innerText = volFirstFlush.toFixed(0);
+
+            // Cálculo do comprimento de tubulação DN 150 necessário para comportar o descarte
+            // Tubo de DN 150 tem capacidade volumétrica interna aproximada de 17.6 Litros por metro linear
+            let compTuboDN150 = volFirstFlush / 17.6;
+            document.getElementById('res-comprimento-tubo').innerText = compTuboDN150.toFixed(1);
+
+            // Capacidade comercial sugerida (arredondada para bombonas/reservatórios padrão)
+            let capBombona = Math.ceil(volFirstFlush / 100) * 100;
+            if (capBombona < 100) capBombona = 100;
+            document.getElementById('res-capacidade-bombona').innerText = capBombona + " Litros";
+        }
+
+        // Ajusta dinamicamente a geometria SVG do telhado conforme os inputs
+        function ajustarGraficoTelhado(a, h) {
+            const roofLeft = document.getElementById('roof-left');
+            const roofRight = document.getElementById('roof-right');
+            
+            // Fatores de escala do SVG
+            const baseX = 200;
+            const baseY = 140;
+            
+            // Calcula escala aproximada das proporções inseridas
+            let scaleA = Math.min(130, Math.max(40, a * 15));
+            let scaleH = Math.min(90, Math.max(10, h * 20));
+
+            // Atualiza pontos do vetor SVG do telhado direito (ativo) e esquerdo (espelhado)
+            roofRight.setAttribute('x1', baseX);
+            roofRight.setAttribute('y1', baseY - scaleH);
+            roofRight.setAttribute('x2', baseX + scaleA);
+            roofRight.setAttribute('y2', baseY - 30);
+
+            roofLeft.setAttribute('x1', baseX);
+            roofLeft.setAttribute('y1', baseY - scaleH);
+            roofLeft.setAttribute('x2', baseX - scaleA);
+            roofLeft.setAttribute('y2', baseY - 30);
+        }
+
+        // Executa o cálculo no carregamento inicial da página
+        window.onload = function() {
+            calcularTudo();
+        };
+    </script>
+</body>
+</html>
